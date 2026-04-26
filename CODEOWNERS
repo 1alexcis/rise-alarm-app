@@ -1,0 +1,12 @@
+# CODEOWNERS — Each module is owned by one teammate slot.
+# Replace @teammate-1, @teammate-2, @teammate-3 with real GitHub usernames.
+# See README.md for instructions on adding collaborators.
+
+/RiseApp/DataLayer/         @teammate-1
+/RiseApp/AlarmEngine/       @teammate-1
+/RiseApp/NFCHandler/        @teammate-2
+/RiseApp/AudioLibrary/      @teammate-2
+/RiseApp/CheckInModule/     @teammate-2
+/RiseApp/Gamification/      @teammate-3
+/RiseApp/OnboardingFlow/    @teammate-3
+/RiseApp/HomeScreen/        @teammate-3
