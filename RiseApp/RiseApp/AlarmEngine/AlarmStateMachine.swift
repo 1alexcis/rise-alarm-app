@@ -9,7 +9,7 @@ final class AlarmStateMachine: AlarmEngineProtocol {
     // OPEN QUESTION: Product decision — how many seconds before re-fire?
     static let checkInWindowSeconds: TimeInterval = 300
 
-    private let stateSubject = CurrentValueSubject<AlarmState, Never>(.idle)
+    let stateSubject = CurrentValueSubject<AlarmState, Never>(.idle)
     var statePublisher: AnyPublisher<AlarmState, Never> { stateSubject.eraseToAnyPublisher() }
 
     private let dataLayer: any DataLayerProtocol

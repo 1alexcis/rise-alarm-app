@@ -29,8 +29,8 @@ final class HomeViewModel {
     }
 
     func load() {
-        allAlarms = alarmEngine.fetchUpcomingAlarms()
-        nextAlarm = allAlarms.first
+        allAlarms = (try? dataLayer.fetchAlarms()) ?? []
+        nextAlarm = allAlarms.first(where: { $0.isActive })
         petState = (try? dataLayer.fetchPetState()) ?? .default
         streakCount = (try? dataLayer.fetchStreakCount()) ?? 0
     }
@@ -43,6 +43,13 @@ final class HomeViewModel {
 
     func saveAlarm(_ alarm: AlarmModel) {
         try? alarmEngine.scheduleAlarm(alarm)
+        load()
+    }
+
+    func toggleAlarm(_ alarm: AlarmModel) {
+        var updated = alarm
+        updated.isActive.toggle()
+        try? alarmEngine.scheduleAlarm(updated)
         load()
     }
 

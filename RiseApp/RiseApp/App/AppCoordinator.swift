@@ -1,26 +1,27 @@
 import SwiftUI
+import SwiftData
 import Observation
 
-/// Root coordinator: decides whether to show onboarding or the home screen.
 @Observable
 final class AppCoordinator {
-    var showOnboarding: Bool = true
+    var showOnboarding: Bool
 
-    private var dataLayer: (any DataLayerProtocol)?
+    let homeViewModel: HomeViewModel
+    let onboardingViewModel: OnboardingViewModel
 
-    func configure(dataLayer: any DataLayerProtocol) {
-        self.dataLayer = dataLayer
-        showOnboarding = (try? dataLayer.isOnboardingComplete()) != true
+    init(container: ModelContainer) {
+        let store = LocalStore(container: container)
+        let engine = AlarmStateMachine(dataLayer: store)
+        let gam = GamificationEngineImpl(dataLayer: store)
+        let nfc = NFCSessionManager()
+
+        self.showOnboarding = (try? store.isOnboardingComplete()) != true
+        self.homeViewModel = HomeViewModel(alarmEngine: engine, gamification: gam, dataLayer: store)
+        self.onboardingViewModel = OnboardingViewModel(dataLayer: store, alarmEngine: engine, nfcHandler: nfc)
     }
 
-    @ViewBuilder
-    func rootView() -> some View {
-        if showOnboarding {
-            OnboardingCoordinator(onComplete: { [weak self] in
-                self?.showOnboarding = false
-            }).rootView()
-        } else {
-            HomeView()
-        }
+    func finishOnboarding() {
+        showOnboarding = false
+        homeViewModel.load()
     }
 }

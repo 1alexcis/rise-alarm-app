@@ -10,6 +10,8 @@ struct NFCPairingView: View {
     }
 
     var body: some View {
+        ZStack {
+            Color(hex: "FAFAF7").ignoresSafeArea(.all)
         VStack(spacing: Rise.Spacing.xl) {
             SunView(expression: .waving, size: 80)
                 .padding(.top, Rise.Spacing.lg)
@@ -96,6 +98,8 @@ struct NFCPairingView: View {
             }
             .padding(.horizontal, Rise.Spacing.xl)
             .padding(.bottom, Rise.Spacing.xl)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 }

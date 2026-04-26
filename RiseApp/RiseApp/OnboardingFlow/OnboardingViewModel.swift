@@ -3,7 +3,7 @@ import Observation
 
 @Observable
 final class OnboardingViewModel {
-    var selectedTime: DateComponents = DateComponents(hour: 7, minute: 30)
+    var wakeDate: Date = Calendar.current.date(from: DateComponents(hour: 7, minute: 30)) ?? Date()
     var selectedToneID: String = "sunrise_chime"
     var volumeLevel: Float = 0.7
     var repeatDays: Set<Weekday> = [.monday, .tuesday, .wednesday, .thursday, .friday]
@@ -37,9 +37,10 @@ final class OnboardingViewModel {
     }
 
     func completeOnboarding() async throws {
+        let time = Calendar.current.dateComponents([.hour, .minute], from: wakeDate)
         let alarm = AlarmModel(
             id: UUID(),
-            time: selectedTime,
+            time: time,
             repeatDays: repeatDays,
             toneID: selectedToneID,
             volumeLevel: volumeLevel,

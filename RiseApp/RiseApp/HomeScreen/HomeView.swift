@@ -1,21 +1,16 @@
 import SwiftUI
 
 struct HomeView: View {
-    // In production, inject via environment or @State init with DI container
-    // HomeViewModel is left as a demonstration — wire it at the AppCoordinator level
+    let viewModel: HomeViewModel
+
     @State private var showWardrobe: Bool = false
     @State private var showAddAlarm: Bool = false
     @State private var showAlarmDetail: AlarmModel? = nil
 
-    // Placeholder data — replace with real ViewModel in DI-wired context
-    private let streakCount: Int = 5
-    private let petState: PetModel = .default
-    private let alarms: [AlarmModel] = [.default]
-
     var body: some View {
         NavigationStack {
             ZStack {
-                Rise.Color.background.ignoresSafeArea()
+                Color(hex: "FAFAF7").ignoresSafeArea(.all)
 
                 ScrollView {
                     VStack(spacing: Rise.Spacing.lg) {
@@ -23,39 +18,34 @@ struct HomeView: View {
                         // MARK: Pet Sun hero
                         ZStack(alignment: .topTrailing) {
                             SunView(
-                                expression: PetEvolutionEngine.expression(for: petState),
-                                size: PetEvolutionEngine.sunSize(for: petState.level)
+                                expression: PetEvolutionEngine.expression(for: viewModel.petState),
+                                size: PetEvolutionEngine.sunSize(for: viewModel.petState.level)
                             )
                             .onTapGesture { showWardrobe = true }
                             .frame(maxWidth: .infinity)
                             .padding(.top, Rise.Spacing.xl)
 
-                            // Streak badge
-                            StreakBadge(count: streakCount)
+                            StreakBadge(count: viewModel.streakCount)
                                 .padding(.top, Rise.Spacing.md)
                                 .padding(.trailing, Rise.Spacing.xl)
                         }
 
                         // MARK: Pet level label
-                        Text(PetEvolutionEngine.levelDescription(for: petState.level))
+                        Text(PetEvolutionEngine.levelDescription(for: viewModel.petState.level))
                             .font(Rise.Font.rounded(14, weight: .medium))
                             .foregroundStyle(Rise.Color.textSecondary)
 
-                        // MARK: Next alarm card
-                        if let alarm = alarms.first {
-                            RiseCard {
-                                AlarmCardRow(alarm: alarm)
-                            }
-                            .padding(.horizontal, Rise.Spacing.xl)
-                            .onTapGesture { showAlarmDetail = alarm }
-                        }
-
                         // MARK: Alarm list
-                        if alarms.count > 1 {
+                        if viewModel.allAlarms.isEmpty {
+                            emptyState
+                        } else {
                             VStack(spacing: Rise.Spacing.sm) {
-                                ForEach(alarms.dropFirst()) { alarm in
+                                ForEach(viewModel.allAlarms) { alarm in
                                     RiseCard {
-                                        AlarmCardRow(alarm: alarm)
+                                        AlarmCardRow(
+                                            alarm: alarm,
+                                            onToggle: { viewModel.toggleAlarm(alarm) }
+                                        )
                                     }
                                     .padding(.horizontal, Rise.Spacing.xl)
                                     .onTapGesture { showAlarmDetail = alarm }
@@ -90,11 +80,35 @@ struct HomeView: View {
             .navigationBarHidden(true)
         }
         .sheet(isPresented: $showWardrobe) {
-            PetWardrobeSheet(petState: petState)
+            PetWardrobeSheet(petState: viewModel.petState)
+        }
+        .sheet(isPresented: $showAddAlarm) {
+            AddAlarmSheet { newAlarm in
+                viewModel.saveAlarm(newAlarm)
+            }
         }
         .sheet(item: $showAlarmDetail) { alarm in
-            AlarmDetailView(alarm: alarm)
+            AlarmDetailView(
+                alarm: alarm,
+                onSave: { updated in viewModel.saveAlarm(updated) },
+                onDelete: { viewModel.deleteAlarm(alarm) }
+            )
         }
+    }
+
+    private var emptyState: some View {
+        VStack(spacing: Rise.Spacing.md) {
+            Image(systemName: "alarm")
+                .font(.system(size: 44))
+                .foregroundStyle(Rise.Color.primary.opacity(0.4))
+            Text("No alarms yet")
+                .font(Rise.Font.rounded(17, weight: .medium))
+                .foregroundStyle(Rise.Color.textSecondary)
+            Text("Tap + to add your first alarm")
+                .font(Rise.Font.rounded(14))
+                .foregroundStyle(Rise.Color.textSecondary.opacity(0.7))
+        }
+        .padding(.top, Rise.Spacing.xxl)
     }
 }
 
@@ -119,6 +133,7 @@ private struct StreakBadge: View {
 // MARK: - Alarm card row
 private struct AlarmCardRow: View {
     let alarm: AlarmModel
+    let onToggle: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: Rise.Spacing.xs) {
@@ -127,9 +142,12 @@ private struct AlarmCardRow: View {
                     .font(Rise.Font.rounded(32, weight: .bold))
                     .foregroundStyle(Rise.Color.text)
                 Spacer()
-                Toggle("", isOn: .constant(alarm.isActive))
-                    .tint(Rise.Color.primary)
-                    .labelsHidden()
+                Toggle("", isOn: Binding(
+                    get: { alarm.isActive },
+                    set: { _ in onToggle() }
+                ))
+                .tint(Rise.Color.primary)
+                .labelsHidden()
             }
             Text(alarm.repeatDays.isEmpty ? "One-time" : alarm.repeatDays.shortSummary)
                 .font(Rise.Font.rounded(14))

@@ -114,10 +114,3 @@ final class MockDataLayer: DataLayerProtocol {
     func isOnboardingComplete() throws -> Bool { onboardingComplete }
 }
 
-// Expose internal for testing
-extension AlarmStateMachine {
-    var stateSubject: CurrentValueSubject<AlarmState, Never> {
-        // This requires making stateSubject internal in production code — acceptable for testing
-        return self.value(forKey: "stateSubject") as! CurrentValueSubject<AlarmState, Never>
-    }
-}

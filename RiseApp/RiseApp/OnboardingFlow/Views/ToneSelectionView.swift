@@ -2,26 +2,24 @@ import SwiftUI
 
 struct ToneSelectionView: View {
     @Binding var step: Int
-    @State private var selectedToneID: String = ToneLibrary.defaultTone.id
+    @Binding var selectedToneID: String
 
     var body: some View {
-        VStack(spacing: Rise.Spacing.xl) {
-            SunView(expression: .waving, size: 80)
-                .padding(.top, Rise.Spacing.lg)
+        ZStack {
+            Color(hex: "FAFAF7").ignoresSafeArea(.all)
+        VStack(spacing: 0) {
+            Text("Pick your wake-up sound")
+                .font(.system(size: 22, weight: .bold, design: .rounded))
+                .padding(.top, 24)
+                .padding(.bottom, 4)
 
-            VStack(spacing: Rise.Spacing.sm) {
-                Text("Pick your wake-up sound")
-                    .font(Rise.Font.rounded(24, weight: .bold))
-                    .foregroundStyle(Rise.Color.text)
-
-                Text("A good tone makes all the difference.")
-                    .font(Rise.Font.rounded(16))
-                    .foregroundStyle(Rise.Color.textSecondary)
-            }
-            .padding(.horizontal, Rise.Spacing.xl)
+            Text("A good tone makes all the difference.")
+                .font(.system(size: 15, design: .rounded))
+                .foregroundStyle(.secondary)
+                .padding(.bottom, 20)
 
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: Rise.Spacing.md) {
+                HStack(spacing: 12) {
                     ForEach(ToneLibrary.tones) { tone in
                         ToneCard(
                             tone: tone,
@@ -30,16 +28,25 @@ struct ToneSelectionView: View {
                         )
                     }
                 }
-                .padding(.horizontal, Rise.Spacing.xl)
+                .padding(.horizontal, 24)
             }
 
             Spacer()
 
-            RiseButton(title: "Continue") {
+            Button {
                 withAnimation { step = 2 }
+            } label: {
+                Text("Continue")
+                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                    .foregroundStyle(.black)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(Rise.Color.primary, in: RoundedRectangle(cornerRadius: 14))
+                    .padding(.horizontal, 24)
             }
-            .padding(.horizontal, Rise.Spacing.xl)
-            .padding(.bottom, Rise.Spacing.xl)
+            .padding(.bottom, 40)
+        }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
     }
 }
@@ -50,28 +57,27 @@ private struct ToneCard: View {
     let onSelect: () -> Void
 
     var body: some View {
-        VStack(spacing: Rise.Spacing.sm) {
+        VStack(spacing: 8) {
             ZStack {
                 Circle()
-                    .fill(isSelected ? Rise.Color.primary : Rise.Color.surface)
+                    .fill(isSelected ? Rise.Color.primary : Color(UIColor.secondarySystemBackground))
                     .frame(width: 56, height: 56)
-                    .shadow(color: .black.opacity(0.08), radius: 4)
                 Image(systemName: isSelected ? "pause.fill" : "play.fill")
                     .font(.system(size: 20, weight: .semibold))
-                    .foregroundStyle(isSelected ? Rise.Color.text : Rise.Color.primary)
+                    .foregroundStyle(isSelected ? .black : Rise.Color.primary)
             }
             .onTapGesture { onSelect() }
 
             Text(tone.name)
-                .font(Rise.Font.rounded(13, weight: isSelected ? .semibold : .regular))
-                .foregroundStyle(Rise.Color.text)
+                .font(.system(size: 13, weight: isSelected ? .semibold : .regular, design: .rounded))
+                .foregroundStyle(.primary)
                 .multilineTextAlignment(.center)
                 .frame(width: 80)
 
             Text(tone.mood.rawValue.capitalized)
-                .font(Rise.Font.rounded(11))
-                .foregroundStyle(Rise.Color.textSecondary)
+                .font(.system(size: 11, design: .rounded))
+                .foregroundStyle(.secondary)
         }
-        .padding(.vertical, Rise.Spacing.md)
+        .padding(.vertical, 12)
     }
 }

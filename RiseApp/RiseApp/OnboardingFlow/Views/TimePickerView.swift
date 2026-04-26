@@ -2,41 +2,57 @@ import SwiftUI
 
 struct TimePickerView: View {
     @Binding var step: Int
-    @State private var selectedTime = Date()
+    @Binding var wakeDate: Date
 
     var body: some View {
-        VStack(spacing: Rise.Spacing.xl) {
-            SunView(expression: .waving, size: 100)
-                .padding(.top, Rise.Spacing.lg)
+        ZStack {
+            Color(hex: "FAFAF7").ignoresSafeArea(.all)
+        VStack(spacing: 0) {
+            Text("When do you need to wake up?")
+                .font(.system(size: 22, weight: .bold, design: .rounded))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 24)
+                .padding(.top, 24)
+                .padding(.bottom, 4)
 
-            VStack(spacing: Rise.Spacing.sm) {
-                Text("When do you need to wake up?")
-                    .font(Rise.Font.rounded(24, weight: .bold))
-                    .foregroundStyle(Rise.Color.text)
-                    .multilineTextAlignment(.center)
+            Text("We'll make sure you actually get up.")
+                .font(.system(size: 15, design: .rounded))
+                .foregroundStyle(.secondary)
+                .padding(.bottom, 16)
 
-                Text("We'll make sure you actually get up.")
-                    .font(Rise.Font.rounded(16))
-                    .foregroundStyle(Rise.Color.textSecondary)
+            // Explicit light background so picker digits are always visible
+            ZStack {
+                Color(UIColor.secondarySystemBackground)
+                DatePicker(
+                    "",
+                    selection: $wakeDate,
+                    displayedComponents: .hourAndMinute
+                )
+                .datePickerStyle(.wheel)
+                .labelsHidden()
+                .frame(maxWidth: .infinity)
+                // Force light rendering — prevents white-text-on-white-bg
+                .colorScheme(.light)
             }
-            .padding(.horizontal, Rise.Spacing.xl)
-
-            DatePicker(
-                "Wake time",
-                selection: $selectedTime,
-                displayedComponents: .hourAndMinute
-            )
-            .datePickerStyle(.wheel)
-            .labelsHidden()
-            .tint(Rise.Color.primary)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .padding(.horizontal, 24)
 
             Spacer()
 
-            RiseButton(title: "Continue") {
+            Button {
                 withAnimation { step = 1 }
+            } label: {
+                Text("Continue")
+                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                    .foregroundStyle(.black)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(Rise.Color.primary, in: RoundedRectangle(cornerRadius: 14))
+                    .padding(.horizontal, 24)
             }
-            .padding(.horizontal, Rise.Spacing.xl)
-            .padding(.bottom, Rise.Spacing.xl)
+            .padding(.bottom, 40)
+        }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
     }
 }

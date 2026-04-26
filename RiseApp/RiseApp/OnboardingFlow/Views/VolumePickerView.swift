@@ -2,48 +2,56 @@ import SwiftUI
 
 struct VolumePickerView: View {
     @Binding var step: Int
-    @State private var volume: Float = 0.7
+    @Binding var volumeLevel: Float
 
     var body: some View {
-        VStack(spacing: Rise.Spacing.xl) {
-            SunView(expression: .waving, size: 80)
-                .padding(.top, Rise.Spacing.lg)
+        ZStack {
+            Color(hex: "FAFAF7").ignoresSafeArea(.all)
+        VStack(spacing: 0) {
+            Text("How loud?")
+                .font(.system(size: 22, weight: .bold, design: .rounded))
+                .padding(.top, 24)
+                .padding(.bottom, 4)
 
-            VStack(spacing: Rise.Spacing.sm) {
-                Text("How loud?")
-                    .font(Rise.Font.rounded(24, weight: .bold))
-                    .foregroundStyle(Rise.Color.text)
+            Text("Rise starts quiet and ramps up over 30 seconds.")
+                .font(.system(size: 15, design: .rounded))
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 24)
+                .padding(.bottom, 32)
 
-                Text("Rise starts quiet and ramps up over 30 seconds.")
-                    .font(Rise.Font.rounded(16))
-                    .foregroundStyle(Rise.Color.textSecondary)
-                    .multilineTextAlignment(.center)
-            }
-            .padding(.horizontal, Rise.Spacing.xl)
-
-            VStack(spacing: Rise.Spacing.md) {
+            VStack(spacing: 12) {
                 HStack {
                     Image(systemName: "speaker.fill")
-                        .foregroundStyle(Rise.Color.textSecondary)
-                    Slider(value: $volume, in: 0.1...1.0, step: 0.05)
+                        .foregroundStyle(.secondary)
+                    Slider(value: $volumeLevel, in: 0.1...1.0, step: 0.05)
                         .tint(Rise.Color.primary)
                     Image(systemName: "speaker.wave.3.fill")
                         .foregroundStyle(Rise.Color.primary)
                 }
-                .padding(.horizontal, Rise.Spacing.xl)
+                .padding(.horizontal, 24)
 
-                Text("Max volume: \(Int(volume * 100))%")
-                    .font(Rise.Font.rounded(15, weight: .medium))
-                    .foregroundStyle(Rise.Color.textSecondary)
+                Text("Max volume: \(Int(volumeLevel * 100))%")
+                    .font(.system(size: 15, weight: .medium, design: .rounded))
+                    .foregroundStyle(.secondary)
             }
 
             Spacer()
 
-            RiseButton(title: "Continue") {
+            Button {
                 withAnimation { step = 3 }
+            } label: {
+                Text("Continue")
+                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                    .foregroundStyle(.black)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(Rise.Color.primary, in: RoundedRectangle(cornerRadius: 14))
+                    .padding(.horizontal, 24)
             }
-            .padding(.horizontal, Rise.Spacing.xl)
-            .padding(.bottom, Rise.Spacing.xl)
+            .padding(.bottom, 40)
+        }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
     }
 }

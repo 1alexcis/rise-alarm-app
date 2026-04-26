@@ -2,8 +2,12 @@ import SwiftUI
 
 struct PlacementConfirmView: View {
     let onComplete: () -> Void
+    @Environment(OnboardingViewModel.self) private var viewModel
+    @State private var isSaving: Bool = false
 
     var body: some View {
+        ZStack {
+            Color(hex: "FAFAF7").ignoresSafeArea(.all)
         VStack(spacing: Rise.Spacing.xl) {
             SunView(expression: .celebrating, size: 100)
                 .padding(.top, Rise.Spacing.lg)
@@ -53,12 +57,18 @@ struct PlacementConfirmView: View {
 
             Spacer()
 
-            RiseButton(title: "I'm ready to Rise! ☀️") {
-                onComplete()
+            RiseButton(title: isSaving ? "Saving…" : "I'm ready to Rise! ☀️") {
+                guard !isSaving else { return }
+                isSaving = true
+                Task {
+                    try? await viewModel.completeOnboarding()
+                    await MainActor.run { onComplete() }
+                }
             }
             .padding(.horizontal, Rise.Spacing.xl)
             .padding(.bottom, Rise.Spacing.xl)
         }
-        .background(Rise.Color.background.ignoresSafeArea())
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        }
     }
 }
