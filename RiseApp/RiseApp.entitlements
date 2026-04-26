@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- CoreNFC: required for reading and writing NFC tags -->
+    <key>com.apple.developer.nfc.readersession.formats</key>
+    <array>
+        <string>NDEF</string>
+    </array>
+
+    <!-- Push notifications for alarm re-fire and check-in window -->
+    <key>aps-environment</key>
+    <string>development</string>
+</dict>
+</plist>
